@@ -36,4 +36,4 @@ make
 
 ```
 
-`./WorkBuddy work-buddy-square.png`
+`./WorkBuddy`

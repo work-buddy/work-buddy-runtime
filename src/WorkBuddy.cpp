@@ -1,22 +1,32 @@
 #include <opencv2/opencv.hpp>
-#include <stdio.h>
 using namespace cv;
-int main(int argc, char **argv)
-{
-    if (argc != 2)
-    {
-        printf("usage: DisplayImage.out <Image_Path>\n");
-        return -1;
-    }
-    Mat image;
-    image = imread(argv[1], 1);
-    if (!image.data)
-    {
-        printf("No image data \n");
-        return -1;
-    }
-    namedWindow("Work Buddy", WINDOW_AUTOSIZE);
-    imshow("Work Buddy", image);
-    waitKey(0);
-    return 0;
+
+using namespace std;
+
+int main() {
+
+Mat image;
+
+namedWindow("Work Buddy");
+
+VideoCapture cap(0);
+
+if (!cap.isOpened()) {
+
+cout << "cannot open camera";
+
+}
+
+while (true) {
+
+cap >> image;
+
+imshow("Work Buddy", image);
+
+waitKey(25);
+
+}
+
+return 0;
+
 }
