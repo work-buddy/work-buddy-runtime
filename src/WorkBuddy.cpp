@@ -1,32 +1,31 @@
 #include <opencv2/opencv.hpp>
 using namespace cv;
-
 using namespace std;
 
-int main() {
+int main()
+{
 
-Mat image;
+    Mat image;
 
-namedWindow("Work Buddy");
+    namedWindow("Work Buddy");
 
-VideoCapture cap(0);
+    VideoCapture cap(0);
 
-if (!cap.isOpened()) {
+    if (!cap.isOpened())
+    {
 
-cout << "cannot open camera";
+        cout << "cannot open camera";
+    }
 
-}
+    while (true)
+    {
 
-while (true) {
+        cap >> image;
 
-cap >> image;
+        imshow("Work Buddy", image);
 
-imshow("Work Buddy", image);
+        waitKey(25);
+    }
 
-waitKey(25);
-
-}
-
-return 0;
-
+    return 0;
 }
