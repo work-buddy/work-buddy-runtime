@@ -5,6 +5,7 @@ A custom Linux based OpenCV C++ runtime for powering the Work Buddy XR HUD.
 ## Local Setup
 
 Target Operating System: Ubuntu 24 LTS
+
 Target GPU: Nvidia RTX 2080 Super
 
 ## Install Nvidia CUDA Toolkit
@@ -21,6 +22,7 @@ sudo apt-get update
 sudo apt-get -y install cuda-toolkit-12-5
 sudo apt-get install -y nvidia-driver-555-open
 sudo apt-get install -y cuda-drivers-555
+sudo apt install nvidia-cuda-toolkit
 ```
 
 ## Install Nvidia cuDNN
@@ -40,7 +42,20 @@ sudo apt-get -y install cudnn-cuda-12
 https://docs.opencv.org/4.10.0/d7/d9f/tutorial_linux_install.html
 
 ```bash
-sudo apt update && sudo apt install -y cmake make g++ libgtk2.0-dev pkg-config wget unzip
+sudo apt update && sudo apt dist-upgrade
+sudo apt install -y cmake make g++ pkg-config wget unzip
+sudo apt install -y libjpeg-dev libpng-dev libtiff-dev
+sudo apt install -y libavcodec-dev libavformat-dev libswscale-dev
+sudo apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+sudo apt install -y libxvidcore-dev x264 libx264-dev libfaac-dev libmp3lame-dev libtheora-dev
+sudo apt install -y libfaac-dev libmp3lame-dev libvorbis-dev
+sudo apt install -y libopencore-amrnb-dev libopencore-amrwb-dev
+sudo apt-get install -y libgtk-3-dev
+sudo apt-get install -y libtbb-dev
+sudo apt-get install -y libatlas-base-dev gfortran
+sudo apt-get install -y libprotobuf-dev protobuf-compiler
+sudo apt-get install -y libgoogle-glog-dev libgflags-dev
+sudo apt-get install -y libgphoto2-dev libeigen3-dev libhdf5-dev doxygen
 mkdir -p build
 mkdir -p lib
 wget -O opencv.zip https://github.com/opencv/opencv/archive/4.10.0.zip
@@ -56,9 +71,13 @@ cmake ../lib/opencv-4.10.0 -D BUILD_EXAMPLES=ON \
 -D WITH_CUDNN=ON \
 -D OPENCV_DNN_CUDA=ON \
 -D CUDA_ARCH_BIN=7.5 \
--D OPENCV_EXTRA_MODULES_PATH=../lib/opencv_contrib-4.10.0/modules
+-D OPENCV_EXTRA_MODULES_PATH=../lib/opencv_contrib-4.10.0/modules \
+-D CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-12 \
+-D CUDNN_INCLUDE_DIR=/usr/include \
+-D CUDNN_LIBRARY=/usr/lib/x86_64-linux-gnu/libcudnn.so \
+-D GLOG_INCLUDE_DIR=/usr/include
 cmake --build .
-make -j4
+make -j12
 sudo make install
 cd .. && cmake .
 make
