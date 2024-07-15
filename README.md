@@ -83,7 +83,7 @@ cd .. && cmake .
 make
 ```
 
-### Configure YOLOv8 ONNX Model in OpenCV
+### Run the Example YOLOv8 ONNX Model in OpenCV to test your setup.
 
 ```bash
 cd build
@@ -92,9 +92,23 @@ cd opencv_extra/testdata/dnn
 python3 download_models.py yolov8x
 cd ..
 export OPENCV_TEST_DATA_PATH=$(pwd)
-cd ../..
-./bin/example_dnn_yolo_detector --model=opencv_extra/testdata/dnn/onnx/models/yolov8x.onnx --yolo=yolov8 --mean=0.0 --scale=0.003921568627 --paddingmode=2 --padvalue=144.0 --thr=0.5 --nms=0.4 --rgb=0 --backend=5 --target=6
+cd ../../..
+./build/bin/example_dnn_yolo_detector --model=build/opencv_extra/testdata/dnn/yolov8n.onnx --yolo=yolov8 --mean=0.0 --scale=0.003921568627 --paddingmode=2 --padvalue=144.0 --thr=0.4 --nms=0.4 --rgb=0 --backend=5 --target=6
 ```
+This should run smooth on target hardware, else your not on GPU and CUDA failed, re-install drivers, check your OpenCV build logs.
+
+### Export other YOLOv8 models to ONNX
+Only the detection module is available on package managers. -cls -pose -seg, etc need to download and export ourselves.
+Find all the models for download in YOLO's Github releases: 
+https://github.com/ultralytics/assets/releases  
+https://docs.ultralytics.com/models/yolov8/  
+https://docs.ultralytics.com/modes/export/
+
+```bash
+python3 utils/yolo-onnx-export.py
+mv models/pre-trained/yolov8x-cls.onnx models/onnx/
+```
+(opencv example will only work with detection, -pose, -cls, etc need custom rendering)
 
 ### Troubleshooting
 I had to turn secure boot off on my machine for Nvidia drivers, TODO: make secure.
