@@ -8,7 +8,7 @@ Target Operating System: Ubuntu 24 LTS
 
 Target GPU: Nvidia RTX 2080 Super
 
-## Install Nvidia CUDA Toolkit
+### Install Nvidia CUDA Toolkit
 
 https://gist.github.com/raulqf/f42c718a658cddc16f9df07ecc627be7
 https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&Distribution=Ubuntu&target_version=24.04&target_type=deb_local
@@ -18,23 +18,23 @@ sudo mv cuda-ubuntu2404.pin /etc/apt/preferences.d/cuda-repository-pin-600
 wget https://developer.download.nvidia.com/compute/cuda/12.5.1/local_installers/cuda-repo-ubuntu2404-12-5-local_12.5.1-555.42.06-1_amd64.deb
 sudo dpkg -i cuda-repo-ubuntu2404-12-5-local_12.5.1-555.42.06-1_amd64.deb
 sudo cp /var/cuda-repo-ubuntu2404-12-5-local/cuda-*-keyring.gpg /usr/share/keyrings/
-sudo apt-get update
-sudo apt-get -y install cuda-toolkit-12-5
-sudo apt-get install -y nvidia-driver-555-open
-sudo apt-get install -y cuda-drivers-555
+sudo apt update
+sudo apt -y install cuda-toolkit-12-5
+sudo apt install -y nvidia-driver-555-open
+sudo apt install -y cuda-drivers-555
 sudo apt install nvidia-cuda-toolkit
 ```
 
-## Install Nvidia cuDNN
+### Install Nvidia cuDNN
 
 https://developer.nvidia.com/cudnn-downloads?target_os=Linux&target_arch=x86_64&Distribution=Ubuntu&target_version=22.04&target_type=deb_local
 ```bash
 wget https://developer.download.nvidia.com/compute/cudnn/9.2.1/local_installers/cudnn-local-repo-ubuntu2204-9.2.1_1.0-1_amd64.deb
 sudo dpkg -i cudnn-local-repo-ubuntu2204-9.2.1_1.0-1_amd64.deb
 sudo cp /var/cudnn-local-repo-ubuntu2204-9.2.1/cudnn-*-keyring.gpg /usr/share/keyrings/
-sudo apt-get update
-sudo apt-get -y install cudnn
-sudo apt-get -y install cudnn-cuda-12
+sudo apt update
+sudo apt -y install cudnn
+sudo apt -y install cudnn-cuda-12
 ```
 
 ### Build and Install OpenCV
@@ -50,12 +50,12 @@ sudo apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 sudo apt install -y libxvidcore-dev x264 libx264-dev libfaac-dev libmp3lame-dev libtheora-dev
 sudo apt install -y libfaac-dev libmp3lame-dev libvorbis-dev
 sudo apt install -y libopencore-amrnb-dev libopencore-amrwb-dev
-sudo apt-get install -y libgtk-3-dev
-sudo apt-get install -y libtbb-dev
-sudo apt-get install -y libatlas-base-dev gfortran
-sudo apt-get install -y libprotobuf-dev protobuf-compiler
-sudo apt-get install -y libgoogle-glog-dev libgflags-dev
-sudo apt-get install -y libgphoto2-dev libeigen3-dev libhdf5-dev doxygen
+sudo apt install -y libgtk-3-dev
+sudo apt install -y libtbb-dev
+sudo apt install -y libatlas-base-dev gfortran
+sudo apt install -y libprotobuf-dev protobuf-compiler
+sudo apt install -y libgoogle-glog-dev libgflags-dev
+sudo apt install -y libgphoto2-dev libeigen3-dev libhdf5-dev doxygen
 mkdir -p build
 mkdir -p lib
 wget -O opencv.zip https://github.com/opencv/opencv/archive/4.10.0.zip
@@ -89,12 +89,14 @@ make
 cd build
 git clone https://github.com/opencv/opencv_extra.git
 cd opencv_extra/testdata/dnn
-python3 download_models.py yolov8n
+python3 download_models.py yolov8x
 cd ..
 export OPENCV_TEST_DATA_PATH=$(pwd)
 cd ../..
-./bin/example_dnn_yolo_detector --model=onnx/models/yolov8n.onnx --yolo=yolov8 --mean=0.0 --scale=0.003921568627 --paddingmode=2 --padvalue=144.0 --thr=0.5 --nms=0.4 --rgb=0 --backend=5 --target=6
-
+./bin/example_dnn_yolo_detector --model=opencv_extra/testdata/dnn/onnx/models/yolov8x.onnx --yolo=yolov8 --mean=0.0 --scale=0.003921568627 --paddingmode=2 --padvalue=144.0 --thr=0.5 --nms=0.4 --rgb=0 --backend=5 --target=6
 ```
+
+### Troubleshooting
+I had to turn secure boot off on my machine for Nvidia drivers, TODO: make secure.
 
 `./WorkBuddy`
