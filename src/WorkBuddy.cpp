@@ -1,30 +1,38 @@
 #include <opencv2/opencv.hpp>
-using namespace cv;
-using namespace std;
+#include "FPSCounter/FPSCounter.hpp"
 
+using namespace std;
 int main()
 {
-
-    Mat image;
-
-    namedWindow("Work Buddy");
-
-    VideoCapture cap(0);
-
+    cv::VideoCapture cap(0);
     if (!cap.isOpened())
     {
-
-        cout << "cannot open camera";
+        return -1;
     }
 
+    FPSCounter fpsCounter;
+
+    cv::Mat frame;
     while (true)
     {
+        fpsCounter.startFrame();
 
-        cap >> image;
+        cap >> frame;
+        if (frame.empty())
+            break;
 
-        imshow("Work Buddy", image);
+        fpsCounter.endFrame();
+        double fps = fpsCounter.getFPS();
+        std::string fpsText = "FPS: " + std::to_string(fps);
 
-        waitKey(25);
+        cv::putText(frame, fpsText, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.75, cv::Scalar(0, 255, 0), 2);
+
+        cv::imshow("Frame", frame);
+
+        std::cout << "FPS: " << fps << std::endl;
+
+        if (cv::waitKey(30) >= 0)
+            break;
     }
 
     return 0;
