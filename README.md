@@ -64,21 +64,28 @@ wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/refs
 unzip opencv.zip -d lib
 unzip opencv_contrib.zip -d lib
 cd build
-cmake ../lib/opencv-4.10.0 -D BUILD_EXAMPLES=ON \
+sudo cmake ../lib/opencv-4.10.0 -D CMAKE_BUILD_TYPE=RELEASE \
+-D BUILD_EXAMPLES=ON \
+-D CMAKE_INSTALL_PREFIX=/usr/local \
+-D BUILD_opencv_cudacodec=OFF \
 -D WITH_CUDA=ON \
 -D ENABLE_FAST_MATH=1 \
 -D CUDA_FAST_MATH=1 \
+-D WITH_CUBLAS=1 \
 -D WITH_TBB=ON \
 -D WITH_CUDNN=ON \
 -D OPENCV_DNN_CUDA=ON \
+-D WITH_GSTREAMER=ON \
+-D WITH_OPENGL=ON \
+-D WITH_V4L=ON \
+-D OPENCV_ENABLE_NONFREE=ON \
 -D CUDA_ARCH_BIN=7.5 \
 -D OPENCV_EXTRA_MODULES_PATH=../lib/opencv_contrib-4.10.0/modules \
--D CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-12 \
+-D CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda \
 -D CUDNN_INCLUDE_DIR=/usr/include \
 -D CUDNN_LIBRARY=/usr/lib/x86_64-linux-gnu/libcudnn.so \
 -D GLOG_INCLUDE_DIR=/usr/include
-cmake --build .
-make -j12
+sudo make -j16
 sudo make install
 cd .. && cmake .
 make
