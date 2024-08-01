@@ -101,7 +101,7 @@ python3 download_models.py yolov8x
 cd ..
 export OPENCV_TEST_DATA_PATH=$(pwd)
 cd ../../..
-./build/bin/example_dnn_yolo_detector --model=build/opencv_extra/testdata/dnn/yolov8n.onnx --yolo=yolov8 --mean=0.0 --scale=0.003921568627 --paddingmode=2 --padvalue=144.0 --thr=0.4 --nms=0.4 --rgb=0 --backend=5 --target=6
+./build/bin/example_dnn_yolo_detector --model=models/onnx/yolov8x.onnx --yolo=yolov8 --mean=0.0 --scale=0.003921568627 --paddingmode=2 --padvalue=144.0 --thr=0.4 --nms=0.4 --rgb=0 --backend=5 --target=6
 ```
 This should run smooth on target hardware, else your not on GPU and CUDA failed, re-install drivers, check your OpenCV build logs.
 
