@@ -1,125 +1,107 @@
 #include "YoloDetector.hpp"
-#include <fstream>
-#include <iostream>
-#include <opencv2/imgcodecs.hpp>
 
-YoloDetector::YoloDetector(const std::string &modelPath, const std::string &classesFilePath, float confThreshold, float nmsThreshold)
-    : confThreshold_(confThreshold), nmsThreshold_(nmsThreshold), inputWidth_(640), inputHeight_(640), scale_(1 / 255.0), mean_(0, 0, 0), swapRB_(true)
+YoloDetector::YoloDetector(const std::string &modelPath, float confThreshold, float nmsThreshold)
+    : confThreshold(confThreshold), nmsThreshold(nmsThreshold)
 {
-    net_ = cv::dnn::readNet(modelPath);
-
-    net_.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
-    net_.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
-
-    getClasses(classesFilePath);
+    net = cv::dnn::readNet(modelPath);
+    net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
+    net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
 }
 
-void YoloDetector::getClasses(const std::string &classesFilePath)
+void YoloDetector::loadClasses(const std::string &classesFile)
 {
-    std::ifstream ifs(classesFilePath.c_str());
+    std::ifstream ifs(classesFile.c_str());
     if (!ifs.is_open())
-    {
-        throw std::runtime_error("File " + classesFilePath + " not found");
-    }
+        CV_Error(cv::Error::StsError, "File " + classesFile + " not found");
     std::string line;
     while (std::getline(ifs, line))
-    {
-        classes_.push_back(line);
-    }
-}
-
-void YoloDetector::detect(const cv::Mat &frame, std::vector<int> &classIds, std::vector<float> &confidences, std::vector<cv::Rect> &boxes)
-{
-    cv::Mat blob;
-
-    // Debugging: Print input frame size and type
-    std::cout << "Input frame size: " << frame.size() << ", type: " << frame.type() << std::endl;
-
-    // Create a 4D blob from the image
-    cv::dnn::blobFromImage(frame, blob, scale_, cv::Size(inputWidth_, inputHeight_), mean_, swapRB_, false);
-
-    // Debugging: Print blob size
-    std::cout << "Blob size: " << blob.size << std::endl;
-
-    net_.setInput(blob);
-
-    // Forward pass
-    std::vector<cv::Mat> outs;
-    net_.forward(outs, net_.getUnconnectedOutLayersNames());
-
-    // Debugging: Print the number of outputs and their shapes
-    std::cout << "Number of outputs: " << outs.size() << std::endl;
-    for (size_t i = 0; i < outs.size(); ++i)
-    {
-        std::cout << "Output " << i << " shape: " << outs[i].size << std::endl;
-    }
-
-    postProcess(frame, outs, classIds, confidences, boxes);
-}
-
-void YoloDetector::postProcess(const cv::Mat &frame, const std::vector<cv::Mat> &outs, std::vector<int> &classIds, std::vector<float> &confidences, std::vector<cv::Rect> &boxes)
-{
-    std::vector<int> indices;
-    for (size_t i = 0; i < outs.size(); ++i)
-    {
-        float *data = (float *)outs[i].data;
-        for (int j = 0; j < outs[i].size[2]; ++j, data += outs[i].size[1])
-        {
-            float confidence = data[4]; // Objectness score
-            if (confidence >= confThreshold_)
-            {
-                cv::Mat scores(1, outs[i].size[1] - 5, CV_32F, data + 5);
-                cv::Point classIdPoint;
-                double maxClassScore;
-                cv::minMaxLoc(scores, 0, &maxClassScore, 0, &classIdPoint);
-
-                if (maxClassScore > confThreshold_)
-                {
-                    int centerX = (int)(data[0] * frame.cols);
-                    int centerY = (int)(data[1] * frame.rows);
-                    int width = (int)(data[2] * frame.cols);
-                    int height = (int)(data[3] * frame.rows);
-                    int left = centerX - width / 2;
-                    int top = centerY - height / 2;
-
-                    classIds.push_back(classIdPoint.x);
-                    confidences.push_back((float)maxClassScore);
-                    boxes.push_back(cv::Rect(left, top, width, height));
-                }
-            }
-        }
-    }
-
-    // Apply Non-Maximum Suppression to eliminate redundant overlapping boxes with lower confidences
-    cv::dnn::NMSBoxes(boxes, confidences, confThreshold_, nmsThreshold_, indices);
-
-    std::vector<cv::Rect> nmsBoxes;
-    std::vector<int> nmsClassIds;
-    std::vector<float> nmsConfidences;
-    for (auto idx : indices)
-    {
-        nmsBoxes.push_back(boxes[idx]);
-        nmsClassIds.push_back(classIds[idx]);
-        nmsConfidences.push_back(confidences[idx]);
-    }
-    boxes = nmsBoxes;
-    classIds = nmsClassIds;
-    confidences = nmsConfidences;
+        classes.push_back(line);
 }
 
 void YoloDetector::drawPrediction(int classId, float conf, int left, int top, int right, int bottom, cv::Mat &frame)
 {
-    rectangle(frame, cv::Point(left, top), cv::Point(right, bottom), cv::Scalar(0, 255, 0));
-
+    cv::rectangle(frame, cv::Point(left, top), cv::Point(right, bottom), cv::Scalar(0, 255, 0));
     std::string label = cv::format("%.2f", conf);
-    if (!classes_.empty() && classId < (int)classes_.size())
+    if (!classes.empty() && classId < classes.size())
     {
-        label = classes_[classId] + ": " + label;
+        label = classes[classId] + ": " + label;
+    }
+    int baseLine;
+    cv::Size labelSize = cv::getTextSize(label, cv::FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
+    top = std::max(top, labelSize.height);
+    cv::rectangle(frame, cv::Point(left, top - labelSize.height),
+                  cv::Point(left + labelSize.width, top + baseLine), cv::Scalar::all(255), cv::FILLED);
+    cv::putText(frame, label, cv::Point(left, top), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar());
+}
+
+void YoloDetector::yoloPostProcessing(const std::vector<cv::Mat> &outs, std::vector<int> &keep_classIds, std::vector<float> &keep_confidences, std::vector<cv::Rect2d> &keep_boxes)
+{
+    std::vector<int> classIds;
+    std::vector<float> confidences;
+    std::vector<cv::Rect2d> boxes;
+
+    for (const auto &preds : outs)
+    {
+        for (int i = 0; i < preds.rows; ++i)
+        {
+            float obj_conf = preds.at<float>(i, 4);
+            if (obj_conf < confThreshold)
+                continue;
+
+            cv::Mat scores = preds.row(i).colRange(5, preds.cols);
+            double conf;
+            cv::Point maxLoc;
+            cv::minMaxLoc(scores, 0, &conf, 0, &maxLoc);
+
+            conf *= obj_conf;
+            if (conf < confThreshold)
+                continue;
+
+            const float *det = preds.ptr<float>(i);
+            double cx = det[0];
+            double cy = det[1];
+            double w = det[2];
+            double h = det[3];
+
+            boxes.push_back(cv::Rect2d(cx - 0.5 * w, cy - 0.5 * h, cx + 0.5 * w, cy + 0.5 * h));
+            classIds.push_back(maxLoc.x);
+            confidences.push_back(static_cast<float>(conf));
+        }
     }
 
-    int baseLine;
-    cv::Size labelSize = getTextSize(label, cv::FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
-    top = cv::max(top, labelSize.height);
-    rectangle(frame, cv::Point(left, top - labelSize.height), cv::Point(left + labelSize.width, top + baseLine), cv::Scalar::all(255), cv::FILLED);
-    putText(frame, label, cv::Point(left, top), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar());
+    std::vector<int> keep_idx;
+    cv::dnn::NMSBoxes(boxes, confidences, confThreshold, nmsThreshold, keep_idx);
+
+    for (auto i : keep_idx)
+    {
+        keep_classIds.push_back(classIds[i]);
+        keep_confidences.push_back(confidences[i]);
+        keep_boxes.push_back(boxes[i]);
+    }
+}
+
+void YoloDetector::detectAndDraw(cv::Mat &frame)
+{
+    cv::Size size(640, 640);        // Adjust size as per the model's requirement
+    cv::Scalar mean(0.0, 0.0, 0.0); // Adjust mean if necessary
+    float scale = 1.0 / 255.0;      // Adjust scale if necessary
+    bool swapRB = true;
+    bool crop = false;
+
+    cv::Mat blob = cv::dnn::blobFromImage(frame, scale, size, mean, swapRB, crop, CV_32F);
+    net.setInput(blob);
+    std::vector<cv::Mat> outs;
+    net.forward(outs, net.getUnconnectedOutLayersNames());
+
+    std::vector<int> keep_classIds;
+    std::vector<float> keep_confidences;
+    std::vector<cv::Rect2d> keep_boxes;
+
+    yoloPostProcessing(outs, keep_classIds, keep_confidences, keep_boxes);
+
+    for (size_t idx = 0; idx < keep_boxes.size(); ++idx)
+    {
+        cv::Rect box = cv::Rect(keep_boxes[idx]);
+        drawPrediction(keep_classIds[idx], keep_confidences[idx], box.x, box.y, box.width + box.x, box.height + box.y, frame);
+    }
 }

@@ -3,30 +3,26 @@
 
 #include <opencv2/dnn.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
+#include <fstream>
 #include <string>
 #include <vector>
 
-class YoloDetector
-{
+class YoloDetector {
 public:
-    YoloDetector(const std::string &modelPath, const std::string &classesFilePath, float confThreshold = 0.5f, float nmsThreshold = 0.4f);
-    void detect(const cv::Mat &frame, std::vector<int> &classIds, std::vector<float> &confidences, std::vector<cv::Rect> &boxes);
-    void drawPrediction(int classId, float conf, int left, int top, int right, int bottom, cv::Mat &frame);
-
+    YoloDetector(const std::string& modelPath, float confThreshold, float nmsThreshold);
+    void loadClasses(const std::string& classesFile);
+    void detectAndDraw(cv::Mat& frame);
+    
 private:
-    void getClasses(const std::string &classesFilePath);
-    void postProcess(const cv::Mat &frame, const std::vector<cv::Mat> &outs, std::vector<int> &classIds, std::vector<float> &confidences, std::vector<cv::Rect> &boxes);
+    void drawPrediction(int classId, float conf, int left, int top, int right, int bottom, cv::Mat& frame);
+    void yoloPostProcessing(const std::vector<cv::Mat>& outs, std::vector<int>& keep_classIds, std::vector<float>& keep_confidences, std::vector<cv::Rect2d>& keep_boxes);
 
-    cv::dnn::Net net_;
-    std::vector<std::string> classes_;
-    float confThreshold_;
-    float nmsThreshold_;
-    int inputWidth_;
-    int inputHeight_;
-    float scale_;
-    cv::Scalar mean_;
-    bool swapRB_;
+    cv::dnn::Net net;
+    std::vector<std::string> classes;
+    float confThreshold;
+    float nmsThreshold;
 };
 
 #endif // YOLO_DETECTOR_HPP

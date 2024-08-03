@@ -1,6 +1,9 @@
 #include "FPSCounter/FPSCounter.hpp"
 #include "YoloDetector/YoloDetector.hpp"
+#include "TextTyper/TextTyper.hpp"
+
 #include <opencv2/opencv.hpp>
+#include <thread>
 
 using namespace std;
 
@@ -18,9 +21,18 @@ int main()
     std::string modelPath = "models/onnx/yolov8x.onnx";
     std::string classesFile = "datasets/Coco.names";
 
-    YoloDetector detector(modelPath, classesFile);
+    YoloDetector detector(modelPath, 0.5, 0.5);
+
+    detector.loadClasses(classesFile);
+
+    TextTyper::typeTextSlowly("Work Buddy HUD activating...", 100);
+
+    int currentIndex = 0;
+    std::string introText = "Work Buddy HUD Online";
 
     cv::Mat frame;
+    const int frameDelayMs = 33; // Approx. 30 FPS
+    auto lastUpdateTime = std::chrono::steady_clock::now();
 
     while (true)
     {
@@ -30,15 +42,13 @@ int main()
         if (frame.empty())
             break;
 
-        std::vector<int> classIds;
-        std::vector<float> confidences;
-        std::vector<cv::Rect> boxes;
-
-        detector.detect(frame, classIds, confidences, boxes);
-
-        for (size_t i = 0; i < boxes.size(); ++i)
+        if (currentIndex < introText.size())
         {
-            detector.drawPrediction(classIds[i], confidences[i], boxes[i].x, boxes[i].y, boxes[i].x + boxes[i].width, boxes[i].y + boxes[i].height, frame);
+            TextTyper::typeTextSlowlyOnScreen(frame, introText, 100, currentIndex, lastUpdateTime);
+        }
+        else
+        {
+            detector.detectAndDraw(frame);
         }
 
         fpsCounter.endFrame();
@@ -46,8 +56,10 @@ int main()
 
         cv::imshow("Work Buddy", frame);
 
-        if (cv::waitKey(30) >= 0)
+        if (cv::waitKey(1) >= 0)
             break;
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(frameDelayMs));
     }
 
     return 0;
