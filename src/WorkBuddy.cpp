@@ -1,5 +1,6 @@
 #include "FPSCounter/FPSCounter.hpp"
 #include "YoloDetector/YoloDetector.hpp"
+#include "ORBTracker/ORBTracker.hpp"
 #include "TextTyper/TextTyper.hpp"
 
 #include <opencv2/opencv.hpp>
@@ -25,7 +26,7 @@ int main()
 
     detector.loadClasses(classesFile);
 
-    TextTyper::typeTextSlowly("Work Buddy HUD activating...", 100);
+    ORBTracker tracker;
 
     int currentIndex = 0;
     std::string introText = "Work Buddy HUD Online";
@@ -46,10 +47,12 @@ int main()
         {
             TextTyper::typeTextSlowlyOnScreen(frame, introText, 100, currentIndex, lastUpdateTime);
         }
-        else
-        {
-            detector.detectAndDraw(frame);
-        }
+
+        cv::Mat frameWithKeypoints = frame.clone();
+
+        tracker.processFrame(frame);
+        // detector.detectAndDraw(frame);
+        tracker.drawKeypoints(frame, tracker.getKeypoints());
 
         fpsCounter.endFrame();
         fpsCounter.drawFPS(frame);

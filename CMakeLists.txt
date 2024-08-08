@@ -25,12 +25,15 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/FPSCounter)
 include_directories(${CMAKE_SOURCE_DIR}/src/YoloDetector)
 include_directories(${CMAKE_SOURCE_DIR}/src/TextTyper)
+include_directories(${CMAKE_SOURCE_DIR}/src/ORBTracker)
+
 
 set(SOURCES
     src/WorkBuddy.cpp
     src/FPSCounter/FPSCounter.cpp
     src/YoloDetector/YoloDetector.cpp
     src/TextTyper/TextTyper.cpp
+    src/ORBTracker/ORBTracker.cpp
 )
 
 add_executable(WorkBuddy ${SOURCES})
