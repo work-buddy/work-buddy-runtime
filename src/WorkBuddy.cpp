@@ -2,6 +2,7 @@
 #include "YoloDetector/YoloDetector.hpp"
 #include "ORBTracker/ORBTracker.hpp"
 #include "TextTyper/TextTyper.hpp"
+#include "OpenAI/OpenAI.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <thread>
@@ -18,6 +19,18 @@ int main()
     }
 
     FPSCounter fpsCounter;
+
+    std::string openAIKey = "sk-proj-";
+    OpenAI openAI(openAIKey);
+
+    std::string model = "gpt-4o-mini";
+    std::vector<std::pair<std::string, std::string>> messages = {
+        {"user", "Hello, how are you? Tell me a joke."}};
+    double temperature = 0.7;
+
+    std::string response = openAI.chatCompletion(model, messages, temperature);
+
+    std::cout << "Response from OpenAI: " << response << std::endl;
 
     std::string modelPath = "models/onnx/yolov8x.onnx";
     std::string classesFile = "datasets/Coco.names";
