@@ -57,6 +57,8 @@ sudo apt install -y libprotobuf-dev protobuf-compiler
 sudo apt install -y libgoogle-glog-dev libgflags-dev
 sudo apt install -y libgphoto2-dev libeigen3-dev libhdf5-dev doxygen
 sudo apt install -y libyaml-cpp-dev
+sudo apt install libjsoncpp-dev
+sudo apt install libcurl4-openssl-dev
 mkdir -p build
 mkdir -p lib
 wget -O opencv.zip https://github.com/opencv/opencv/archive/4.10.0.zip

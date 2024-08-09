@@ -9,32 +9,42 @@ set(CUDA_TOOLKIT_ROOT_DIR /usr/local/cuda-12.5)
 
 find_package(CUDA 12.5 REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(jsoncpp REQUIRED)
+find_package(CURL REQUIRED)
 
-# Print diagnostic messages
 message(STATUS "CXX Compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "CXX Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS "CUDA Toolkit Root Dir: ${CUDA_TOOLKIT_ROOT_DIR}")
 message(STATUS "CUDA Version: ${CUDA_VERSION}")
 message(STATUS "OpenCV_INCLUDE_DIRS = ${OpenCV_INCLUDE_DIRS}")
 message(STATUS "OpenCV_LIBS = ${OpenCV_LIBS}")
+message(STATUS "CURL_INCLUDE_DIRS = ${CURL_INCLUDE_DIRS}")
+message(STATUS "CURL_LIBRARIES = ${CURL_LIBRARIES}")
 
-include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(/usr/include/yaml-cpp)
-
-include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${CMAKE_SOURCE_DIR}/src/FPSCounter)
-include_directories(${CMAKE_SOURCE_DIR}/src/YoloDetector)
-include_directories(${CMAKE_SOURCE_DIR}/src/TextTyper)
-include_directories(${CMAKE_SOURCE_DIR}/src/ORBTracker)
-
-
-set(SOURCES
+add_executable(WorkBuddy
     src/WorkBuddy.cpp
     src/FPSCounter/FPSCounter.cpp
     src/YoloDetector/YoloDetector.cpp
     src/TextTyper/TextTyper.cpp
     src/ORBTracker/ORBTracker.cpp
+    src/OpenAI/OpenAI.cpp
 )
 
-add_executable(WorkBuddy ${SOURCES})
-target_link_libraries(WorkBuddy ${OpenCV_LIBS} yaml-cpp)
+target_include_directories(WorkBuddy PRIVATE
+    ${OpenCV_INCLUDE_DIRS}
+    ${CURL_INCLUDE_DIRS}
+    /usr/include/yaml-cpp
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/FPSCounter
+    ${CMAKE_SOURCE_DIR}/src/YoloDetector
+    ${CMAKE_SOURCE_DIR}/src/TextTyper
+    ${CMAKE_SOURCE_DIR}/src/ORBTracker
+    ${CMAKE_SOURCE_DIR}/src/OpenAI
+)
+
+target_link_libraries(WorkBuddy PRIVATE
+    ${OpenCV_LIBS}
+    yaml-cpp
+    jsoncpp_lib
+    ${CURL_LIBRARIES}
+)
