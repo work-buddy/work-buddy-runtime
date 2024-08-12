@@ -28,6 +28,7 @@ add_executable(WorkBuddy
     src/TextTyper/TextTyper.cpp
     src/ORBTracker/ORBTracker.cpp
     src/OpenAI/OpenAI.cpp
+    src/ChatOverlay/ChatOverlay.cpp
 )
 
 target_include_directories(WorkBuddy PRIVATE
@@ -40,6 +41,7 @@ target_include_directories(WorkBuddy PRIVATE
     ${CMAKE_SOURCE_DIR}/src/TextTyper
     ${CMAKE_SOURCE_DIR}/src/ORBTracker
     ${CMAKE_SOURCE_DIR}/src/OpenAI
+    ${CMAKE_SOURCE_DIR}/src/ChatOverlay
 )
 
 target_link_libraries(WorkBuddy PRIVATE

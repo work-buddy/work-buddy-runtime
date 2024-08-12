@@ -3,10 +3,13 @@
 #include "ORBTracker/ORBTracker.hpp"
 #include "TextTyper/TextTyper.hpp"
 #include "OpenAI/OpenAI.hpp"
+#include "ChatOverlay.hpp"
+#include <./nlohmann/json.hpp>
 
 #include <opencv2/opencv.hpp>
 #include <thread>
 
+using json = nlohmann::json;
 using namespace std;
 
 int main()
@@ -23,14 +26,20 @@ int main()
     std::string openAIKey = "sk-proj-";
     OpenAI openAI(openAIKey);
 
+    ChatOverlay chatOverlay(640, 480);
+
     std::string model = "gpt-4o-mini";
     std::vector<std::pair<std::string, std::string>> messages = {
-        {"user", "Hello, how are you? Tell me a joke."}};
+        {"user", "You are Buddy, and XR AI assistant running in the user's glasses. You can help the user with various tasks like object detection, tracking, and chat. Greet the user in a short sentence to start."},
+    };
     double temperature = 0.7;
 
-    std::string response = openAI.chatCompletion(model, messages, temperature);
+    std::string openAIResponse = openAI.chatCompletion(model, messages, temperature);
 
-    std::cout << "Response from OpenAI: " << response << std::endl;
+    json openAIJSON = json::parse(openAIResponse);
+    std::string greeting = openAIJSON["choices"][0]["message"]["content"];
+
+    chatOverlay.addMessage("System", greeting);
 
     std::string modelPath = "models/onnx/yolov8x.onnx";
     std::string classesFile = "datasets/Coco.names";
@@ -66,6 +75,8 @@ int main()
         tracker.processFrame(frame);
         // detector.detectAndDraw(frame);
         tracker.drawKeypoints(frame, tracker.getKeypoints());
+
+        chatOverlay.render(frame);
 
         fpsCounter.endFrame();
         fpsCounter.drawFPS(frame);

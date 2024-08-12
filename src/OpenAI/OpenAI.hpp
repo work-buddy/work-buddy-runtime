@@ -5,6 +5,39 @@
 #include <vector>
 #include <curl/curl.h>
 
+struct OpenAIMessage
+{
+    std::string role;
+    std::string content;
+    std::string refusal;
+};
+
+struct OpenAIChoice
+{
+    int index;
+    OpenAIMessage message;
+    std::string logprobs;
+    std::string finish_reason;
+};
+
+struct OpenAIUsage
+{
+    int prompt_tokens;
+    int completion_tokens;
+    int total_tokens;
+};
+
+struct OpenAIResponse
+{
+    std::string id;
+    std::string object;
+    long created;
+    std::string model;
+    std::vector<OpenAIChoice> choices;
+    OpenAIUsage usage;
+    std::string system_fingerprint;
+};
+
 class OpenAI
 {
 public:
