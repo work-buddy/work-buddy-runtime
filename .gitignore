@@ -6,5 +6,6 @@ CMakeFiles
 Makefile
 opencv.zip
 WorkBuddy
-models/
+models/onnx/*
+models/pre-trained/*
 .env
