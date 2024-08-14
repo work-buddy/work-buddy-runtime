@@ -14,16 +14,23 @@ using namespace std;
 
 int main()
 {
-    cv::VideoCapture cap(0);
+    cv::VideoCapture videoCapture(0);
 
-    if (!cap.isOpened())
+    if (!videoCapture.isOpened())
     {
+        std::cerr << "Error opening video capture" << std::endl;
         return -1;
+    }
+
+    const char *openAIKey = std::getenv("OPENAI_KEY");
+    if (openAIKey == nullptr)
+    {
+        std::cerr << "Error: OPENAI_KEY environment variable is not set." << std::endl;
+        return 1;
     }
 
     FPSCounter fpsCounter;
 
-    std::string openAIKey = "sk-proj-";
     OpenAI openAI(openAIKey);
 
     ChatOverlay chatOverlay(640, 480);
@@ -61,7 +68,7 @@ int main()
     {
         fpsCounter.startFrame();
 
-        cap >> frame;
+        videoCapture >> frame;
         if (frame.empty())
             break;
 
