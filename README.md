@@ -12,6 +12,7 @@ Target GPU: Nvidia RTX 2080 Super
 
 https://gist.github.com/raulqf/f42c718a658cddc16f9df07ecc627be7
 https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&Distribution=Ubuntu&target_version=24.04&target_type=deb_local
+
 ```bash
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-ubuntu2404.pin
 sudo mv cuda-ubuntu2404.pin /etc/apt/preferences.d/cuda-repository-pin-600
@@ -28,6 +29,7 @@ sudo apt install nvidia-cuda-toolkit
 ### Install Nvidia cuDNN
 
 https://developer.nvidia.com/cudnn-downloads?target_os=Linux&target_arch=x86_64&Distribution=Ubuntu&target_version=22.04&target_type=deb_local
+
 ```bash
 wget https://developer.download.nvidia.com/compute/cudnn/9.2.1/local_installers/cudnn-local-repo-ubuntu2204-9.2.1_1.0-1_amd64.deb
 sudo dpkg -i cudnn-local-repo-ubuntu2204-9.2.1_1.0-1_amd64.deb
@@ -105,11 +107,13 @@ export OPENCV_TEST_DATA_PATH=$(pwd)
 cd ../../..
 ./build/bin/example_dnn_yolo_detector --model=models/onnx/yolov8x.onnx --yolo=yolov8 --mean=0.0 --scale=0.003921568627 --paddingmode=2 --padvalue=144.0 --thr=0.4 --nms=0.4 --rgb=0 --backend=5 --target=6
 ```
+
 This should run smooth on target hardware, else your not on GPU and CUDA failed, re-install drivers, check your OpenCV build logs.
 
 ### Export other YOLOv8 models to ONNX
+
 Only the detection module is available on package managers. -cls -pose -seg, etc need to download and export ourselves.
-Find all the models for download in YOLO's Github releases: 
+Find all the models for download in YOLO's Github releases:
 https://github.com/ultralytics/assets/releases  
 https://docs.ultralytics.com/models/yolov8/  
 https://docs.ultralytics.com/modes/export/
@@ -118,9 +122,17 @@ https://docs.ultralytics.com/modes/export/
 python3 utils/yolo-onnx-export.py
 mv models/pre-trained/yolov8x-cls.onnx models/onnx/
 ```
+
 (opencv example will only work with detection, -pose, -cls, etc need custom rendering)
 
 ### Troubleshooting
+
 I had to turn secure boot off on my machine for Nvidia drivers, TODO: make secure.
 
-`./WorkBuddy`
+### Run Executable
+
+1. Create `.env` file in root folder. Use `env.example` as template.
+
+2. `chmod +x workbuddy.sh`
+
+3. `./workbuddy.sh`
