@@ -11,6 +11,7 @@ find_package(CUDA 12.5 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(jsoncpp REQUIRED)
 find_package(CURL REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 message(STATUS "CXX Compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "CXX Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
@@ -49,4 +50,6 @@ target_link_libraries(WorkBuddy PRIVATE
     yaml-cpp
     jsoncpp_lib
     ${CURL_LIBRARIES}
+    OpenSSL::SSL
+    OpenSSL::Crypto
 )

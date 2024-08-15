@@ -3,13 +3,13 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 #include <curl/curl.h>
 
 struct OpenAIMessage
 {
     std::string role;
     std::string content;
-    std::string refusal;
 };
 
 struct OpenAIChoice
@@ -44,13 +44,14 @@ public:
     OpenAI(const std::string &apiKey);
     ~OpenAI();
 
-    std::string chatCompletion(const std::string &model, const std::vector<std::pair<std::string, std::string>> &messages, double temperature);
+    std::string chatCompletion(const std::string &model, const std::vector<std::pair<std::string, std::string>> &messages, double temperature, const std::string &base64Image = "");
 
 private:
     std::string apiKey;
     CURL *curl;
 
     static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
+    std::string base64Encode(const std::string &filePath);
 };
 
 #endif // OPENAI_HPP
