@@ -1,5 +1,5 @@
 #include "FPSCounter/FPSCounter.hpp"
-#include "YoloDetector/YoloDetector.hpp"
+// #include "YoloDetector/YoloDetector.hpp"
 #include "ORBTracker/ORBTracker.hpp"
 #include "TextTyper/TextTyper.hpp"
 #include "OpenAI/OpenAI.hpp"
@@ -34,6 +34,7 @@ int main()
     OpenAI openAI(openAIKey);
 
     ChatOverlay chatOverlay(640, 480);
+    chatOverlay.addMessage("System", "Work Buddy HUD Online");
 
     std::string model = "gpt-4o-mini";
     std::vector<std::pair<std::string, std::string>> messages = {
@@ -46,23 +47,18 @@ int main()
     json openAIJSON = json::parse(openAIResponse);
     std::string greeting = openAIJSON["choices"][0]["message"]["content"];
 
-    chatOverlay.addMessage("System", greeting);
+    chatOverlay.addMessage("Buddy AI", greeting);
 
     std::string modelPath = "models/onnx/yolov8x.onnx";
     std::string classesFile = "datasets/Coco.names";
 
-    YoloDetector detector(modelPath, 0.5, 0.5);
-
-    detector.loadClasses(classesFile);
+    // YoloDetector detector(modelPath, 0.5, 0.5);
+    // detector.loadClasses(classesFile);
 
     ORBTracker tracker;
 
-    int currentIndex = 0;
-    std::string introText = "Work Buddy HUD Online";
-
     cv::Mat frame;
-    const int frameDelayMs = 33; // Approx. 30 FPS
-    auto lastUpdateTime = std::chrono::steady_clock::now();
+    int frameDelay = 60;
 
     while (true)
     {
@@ -72,16 +68,18 @@ int main()
         if (frame.empty())
             break;
 
-        if (currentIndex < introText.size())
+        try
         {
-            TextTyper::typeTextSlowlyOnScreen(frame, introText, 100, currentIndex, lastUpdateTime);
+            tracker.processFrame(frame);
+            tracker.drawKeypoints(frame, tracker.getKeypoints());
+        }
+        catch (const cv::Exception &e)
+        {
+            std::cerr << "Detector / Tracker error: " << e.what() << std::endl;
+            break;
         }
 
         cv::Mat frameWithKeypoints = frame.clone();
-
-        tracker.processFrame(frame);
-        // detector.detectAndDraw(frame);
-        tracker.drawKeypoints(frame, tracker.getKeypoints());
 
         chatOverlay.render(frame);
 
@@ -91,9 +89,11 @@ int main()
         cv::imshow("Work Buddy", frame);
 
         if (cv::waitKey(1) >= 0)
+        {
             break;
+        }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(frameDelayMs));
+        std::this_thread::sleep_for(std::chrono::milliseconds(frameDelay));
     }
 
     return 0;
