@@ -5,10 +5,13 @@
 #include "OpenAI/OpenAI.hpp"
 #include "ChatOverlay.hpp"
 #include <./nlohmann/json.hpp>
+#include "utils/Base64/Base64.hpp"
+
+#include <iostream>
+#include <thread>
+#include <chrono>
 
 #include <opencv2/opencv.hpp>
-#include <thread>
-
 using json = nlohmann::json;
 using namespace std;
 
@@ -36,9 +39,17 @@ int main()
     ChatOverlay chatOverlay(640, 480);
     chatOverlay.addMessage("System", "Work Buddy HUD Online");
 
+    std::string modelPath = "models/onnx/yolov8x.onnx";
+    std::string classesFile = "datasets/Coco.names";
+
+    // YoloDetector detector(modelPath, 0.5, 0.5);
+    // detector.loadClasses(classesFile);
+
+    ORBTracker tracker;
+
     std::string model = "gpt-4o-mini";
     std::vector<std::pair<std::string, std::string>> messages = {
-        {"user", "You are Buddy, and XR AI assistant running in the user's glasses. You can help the user with various tasks like object detection, tracking, and chat. Greet the user in a short sentence to start."},
+        {"user", "You are Buddy, an XR AI assistant running in the user's glasses. You can help the user with various tasks like object detection, tracking, and chat. Greet the user."},
     };
     double temperature = 0.7;
 
@@ -49,16 +60,10 @@ int main()
 
     chatOverlay.addMessage("Buddy AI", greeting);
 
-    std::string modelPath = "models/onnx/yolov8x.onnx";
-    std::string classesFile = "datasets/Coco.names";
-
-    // YoloDetector detector(modelPath, 0.5, 0.5);
-    // detector.loadClasses(classesFile);
-
-    ORBTracker tracker;
-
     cv::Mat frame;
     int frameDelay = 60;
+
+    auto lastSentTime = std::chrono::steady_clock::now();
 
     while (true)
     {
@@ -67,6 +72,26 @@ int main()
         videoCapture >> frame;
         if (frame.empty())
             break;
+
+        auto currentTime = std::chrono::steady_clock::now();
+        auto elapsedTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - lastSentTime).count();
+
+        if (elapsedTime >= 15)
+        {
+            std::vector<std::pair<std::string, std::string>> messages = {
+                {"user", "Attached is an image from the user's glasses. Can you describe what you see?"},
+            };
+            std::string base64Image = base64Encode(frame);
+
+            openAI.chatCompletionAsync(model, messages, temperature, base64Image,
+                                       [&](const std::string &response)
+                                       {
+                                           json openAIJSON = json::parse(response);
+                                           std::string aiMessage = openAIJSON["choices"][0]["message"]["content"];
+                                           chatOverlay.addMessage("Buddy AI", aiMessage);
+                                       });
+            lastSentTime = currentTime;
+        }
 
         try
         {
