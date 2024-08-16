@@ -30,6 +30,7 @@ add_executable(WorkBuddy
     src/ORBTracker/ORBTracker.cpp
     src/OpenAI/OpenAI.cpp
     src/ChatOverlay/ChatOverlay.cpp
+    src/utils/Base64/Base64.cpp
 )
 
 target_include_directories(WorkBuddy PRIVATE
@@ -43,6 +44,7 @@ target_include_directories(WorkBuddy PRIVATE
     ${CMAKE_SOURCE_DIR}/src/ORBTracker
     ${CMAKE_SOURCE_DIR}/src/OpenAI
     ${CMAKE_SOURCE_DIR}/src/ChatOverlay
+    ${CMAKE_SOURCE_DIR}/src/utils/Base64
 )
 
 target_link_libraries(WorkBuddy PRIVATE
