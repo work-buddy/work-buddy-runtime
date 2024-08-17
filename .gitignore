@@ -9,3 +9,6 @@ WorkBuddy
 models/onnx/*
 models/pre-trained/*
 .env
+
+# /python env files
+/python/workbuddy

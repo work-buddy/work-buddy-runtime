@@ -136,3 +136,7 @@ I had to turn secure boot off on my machine for Nvidia drivers, TODO: make secur
 2. `chmod +x workbuddy.sh`
 
 3. `./workbuddy.sh`
+
+### Python AI Modules
+
+More info on our local Python AI model microservice architecture in the [Python README](./python/README.md)
