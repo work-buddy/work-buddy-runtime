@@ -12,3 +12,4 @@ models/pre-trained/*
 
 # /python env files
 /python/workbuddy
+__pycache__

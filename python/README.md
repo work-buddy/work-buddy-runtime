@@ -8,6 +8,7 @@ Python version = `3.11`
 python3 -m venv workbuddy
 source workbuddy/bin/activate
 pip install -r requirements.txt
+python3 socket_server.py
 ```
 
 Environment Variables come from the workspace root `.env` outside of `/python`. `.env` is shared by C++ and Python.
@@ -25,8 +26,5 @@ Configure `HUGGINGFACE_ACCESS_TOKEN` in the `.env` file.
 Accept the gated access user conditions on HuggingFace:
 
 https://huggingface.co/pyannote/speaker-diarization-3.1
-https://huggingface.co/pyannote/segmentation-3.0
 
-```bash
-python3 pyannote/main.py
-```
+https://huggingface.co/pyannote/segmentation-3.0

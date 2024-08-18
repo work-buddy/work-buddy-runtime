@@ -3,7 +3,9 @@
 #include "ORBTracker/ORBTracker.hpp"
 #include "TextTyper/TextTyper.hpp"
 #include "OpenAI/OpenAI.hpp"
-#include "ChatOverlay.hpp"
+#include "ChatOverlay/ChatOverlay.hpp"
+#include "PythonSocket/PythonSocket.hpp"
+
 #include <./nlohmann/json.hpp>
 #include "utils/Base64/Base64.hpp"
 
@@ -24,6 +26,17 @@ int main()
         std::cerr << "Error opening video capture" << std::endl;
         return -1;
     }
+
+    PythonSocket pythonSocket("127.0.0.1", 5000);
+    pythonSocket.connect();
+
+    std::string socketRequest = "GET /pyannote pyannote/harry-potter.wav";
+    pythonSocket.send(socketRequest);
+
+    std::string response = pythonSocket.receive();
+    std::cout << "PythonSocket Response: " << response << std::endl;
+
+    pythonSocket.close();
 
     const char *openAIKey = std::getenv("OPENAI_KEY");
     if (openAIKey == nullptr)
