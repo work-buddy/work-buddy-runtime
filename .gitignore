@@ -13,3 +13,4 @@ models/pre-trained/*
 # /python env files
 /python/workbuddy
 __pycache__
+/python/Depth-Anything-V2/models/*
