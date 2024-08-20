@@ -32,7 +32,7 @@ int main()
         PythonSocket pythonSocket("127.0.0.1", 5000);
         pythonSocket.connect();
 
-        std::string socketRequest = "GET /pyannote pyannote/harry-potter.wav";
+        std::string socketRequest = "GET /pyannote python/pyannote/harry-potter.wav";
         pythonSocket.send(socketRequest);
 
         std::string response = pythonSocket.receive();

@@ -11,6 +11,7 @@ models/pre-trained/*
 .env
 
 # /python env files
+workbuddy
 /python/workbuddy
 __pycache__
 /python/Depth-Anything-V2/checkpoints/*

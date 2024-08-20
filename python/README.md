@@ -2,13 +2,13 @@ This `/python` folder is for running Huggingface-like AI models locally as micro
 
 ## Setup
 
-Python version = `3.11`
+Python version = `3.12`
 
 ```bash
-python3 -m venv workbuddy
-source workbuddy/bin/activate
-pip install -r requirements.txt
-python3 socket_server.py
+conda create --name workbuddy python=3.12
+conda activate workbuddy 
+pip install -r python/requirements.txt
+python python/socket_server.py
 ```
 
 Environment Variables come from the workspace root `.env` outside of `/python`. `.env` is shared by C++ and Python.
