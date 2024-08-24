@@ -1,0 +1,26 @@
+name: gslam
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - faiss-gpu=1.8.0
+  - cuda-toolkit=12.0
+  - pytorch=2.1.2
+  - torchvision=0.16.2
+  - pip
+  - pip:
+      - open3d==0.18.0
+      - wandb
+      - trimesh
+      - pytorch_msssim
+      - torchmetrics
+      - tqdm
+      - imageio
+      - opencv-python
+      - plyfile
+      - git+https://github.com/eriksandstroem/evaluate_3d_reconstruction_lib.git@9b3cc08be5440db9c375cc21e3bd65bb4a337db7
+      - /home/cjft/Documents/github/work-buddy/work-buddy-runtime/python/Gaussian-SLAM/simple-knn
+      - git+https://github.com/VladimirYugay/gaussian_rasterizer.git@9c40173fcc8d9b16778a1a8040295bc2f9ebf129
